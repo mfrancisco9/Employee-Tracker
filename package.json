@@ -1,0 +1,28 @@
+{
+  "name": "Employee_Tracker",
+  "version": "1.0.0",
+  "description": "Comb through an employee database to find individuals based on selected criteria.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Vygoth/Employee_Tracker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Vygoth/Employee_Tracker/issues"
+  },
+  "homepage": "https://github.com/Vygoth/Employee_Tracker#readme",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "dotenv": "^8.2.0",
+    "inquirer": "^8.0.0",
+    "mysql": "^2.18.1",
+    "table": "^6.6.0"
+  }
+}

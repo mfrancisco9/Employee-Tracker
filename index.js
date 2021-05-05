@@ -38,10 +38,7 @@ const viewDeptPrompt = [
         name: "chooseDept",
         message: "Please select a department",
         choices: existingDepartments
-
     }
-
-
 ]
 
 const addEmployeeNamePrompts = [

@@ -196,9 +196,8 @@ const switchCases = (responses) => {
 };
 
 const viewAllEmployees = () => {
-    // This probably needs a join, currently doesn't give all of the desired information
     connection.query(
-        `SELECT * FROM Employees`,
+        `SELECT Employees.Employee_ID, Employees.First_Name, Employees.Last_Name, Managers.First_Name AS Manager_First_Name, Managers.Last_Name AS Manager_Last_Name, Roles.Title AS Role, Departments.Department_Name AS Department FROM Employees LEFT JOIN Managers ON Employees.Manager_ID = Managers.Manager_ID JOIN Roles ON Employees.Role_ID = Roles.Role_ID JOIN Departments ON Departments.Department_ID = Roles.Department_ID`,
         (err, res) => {
             err ? console.error(err) : console.table(res);
             return init();

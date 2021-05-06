@@ -33,30 +33,40 @@ const initalPrompt = {
 };
 
 const viewDeptPrompt = [
-    {
-        type: "list",
-        name: "chooseDept",
-        message: "Please select a department",
-        choices: existingDepartments
-    }
-]
+  {
+    type: "list",
+    name: "chooseDept",
+    message: "Please select a department",
+    choices: existingDepartments,
+  },
+];
 
 const viewManagerPrompt = [
-    {
-        type: "list",
-        name: "chooseManager",
-        message: "Please select a manager",
-        choices: existingManagers
-    }
-]
+  {
+    type: "list",
+    name: "chooseManager",
+    message: "Please select a manager",
+    choices: existingManagers,
+  },
+];
 
 const updateRolePrompt = [
   {
     type: "list",
     name: "updateRole",
     message: "Which employee would you like to update the role for?",
-    choices: existingEmployees
-  }];
+    choices: existingEmployees,
+  },
+];
+
+const chooseNewRole = [
+  {
+    type: "list",
+    name: "chooseNewRole",
+    message: "What is the employee's new role?",
+    choices: existingRoles,
+  },
+];
 
 const addEmployeeNamePrompts = [
   {
@@ -228,74 +238,82 @@ const viewAllEmployees = () => {
 
 const viewByDepartment = () => {
   // Also needs a join, just testing function calls and DB queries for now
-  connection.query(`SELECT Department_Name FROM Departments`, 
-  (err, res) => {
+  connection.query(`SELECT Department_Name FROM Departments`, (err, res) => {
     if (err) {
-        console.error(err);
+      console.error(err);
     }
     for (let i = 0; i < res.length; i++) {
-        if (existingDepartments.includes(`${res[i].Department_Name}`)
-        ) {
-            continue;
-        } else {
-            existingDepartments.push(`${res[i].Department_Name}`);
-        }
+      if (existingDepartments.includes(`${res[i].Department_Name}`)) {
+        continue;
+      } else {
+        existingDepartments.push(`${res[i].Department_Name}`);
+      }
     }
     selectViewByDepartment();
-    
   });
 };
 
 const selectViewByDepartment = () => {
-    inquirer.prompt(viewDeptPrompt).then((viewDeptPrompt) => {
-        console.log(viewDeptPrompt.chooseDept);
-        connection.query(`SELECT Employees.Employee_ID, Employees.First_Name, Employees.Last_Name, Managers.First_Name AS Manager_First_Name, Managers.Last_Name AS Manager_Last_Name, Roles.Title AS Role, Departments.Department_Name AS Department FROM Employees LEFT JOIN Managers ON Employees.Manager_ID = Managers.Manager_ID JOIN Roles ON Employees.Role_ID = Roles.Role_ID JOIN Departments ON Departments.Department_ID = Roles.Department_ID AND Department_Name = "${viewDeptPrompt.chooseDept}"`,
-        (err, res) => {
-            err ? console.error(err) : console.table(res);
-            return init();
-        }
-        )
-    })
-
+  inquirer.prompt(viewDeptPrompt).then((viewDeptPrompt) => {
+    console.log(viewDeptPrompt.chooseDept);
+    connection.query(
+      `SELECT Employees.Employee_ID, Employees.First_Name, Employees.Last_Name, Managers.First_Name AS Manager_First_Name, Managers.Last_Name AS Manager_Last_Name, Roles.Title AS Role, Departments.Department_Name AS Department FROM Employees LEFT JOIN Managers ON Employees.Manager_ID = Managers.Manager_ID JOIN Roles ON Employees.Role_ID = Roles.Role_ID JOIN Departments ON Departments.Department_ID = Roles.Department_ID AND Department_Name = "${viewDeptPrompt.chooseDept}"`,
+      (err, res) => {
+        err ? console.error(err) : console.table(res);
+        return init();
+      }
+    );
+  });
 };
 
 const viewByManager = () => {
-    // Also needs a join, just testing function calls and DB queries for now
-    connection.query(`SELECT First_Name, Last_Name FROM Managers`, 
-    (err, res) => {
-      if (err) {
-          console.error(err);
+  // Also needs a join, just testing function calls and DB queries for now
+  connection.query(`SELECT First_Name, Last_Name FROM Managers`, (err, res) => {
+    if (err) {
+      console.error(err);
+    }
+    for (let i = 0; i < res.length; i++) {
+      if (existingManagers.includes(res[i].First_Name && res[i].Last_Name)) {
+        continue;
+      } else {
+        existingManagers.push(res[i].First_Name + " " + res[i].Last_Name);
       }
-      for (let i = 0; i < res.length; i++) {
-        if (existingManagers.includes(res[i].First_Name && res[i].Last_Name)) {
-          continue;
-        } else {
-          existingManagers.push(res[i].First_Name + " " + res[i].Last_Name);
-          }
-      }
-      console.log(existingManagers)
-      selectViewByManager();
-      
-    });
-  };
-
+    }
+    console.log(existingManagers);
+    selectViewByManager();
+  });
+};
 const selectViewByManager = () => {
   //prompt is returning managers name as well, need to find way to exclude
-    inquirer.prompt(viewManagerPrompt).then((viewManagerPrompt) => {
-        console.log(viewManagerPrompt.chooseManager);
-        let managerLast = viewManagerPrompt.chooseManager.split(' ');
-        console.log(managerLast);
-        connection.query(`SELECT Employees.Employee_ID, Employees.First_Name, Employees.Last_Name, Managers.First_Name AS Manager_First_Name, Managers.Last_Name AS Manager_Last_Name, Roles.Title AS Role, Departments.Department_Name AS Department FROM Employees LEFT JOIN Managers ON Employees.Manager_ID = Managers.Manager_ID AND Managers.Last_Name = "${managerLast[1]}" JOIN Roles ON Employees.Role_ID = Roles.Role_ID JOIN Departments ON Departments.Department_ID = Roles.Department_ID`,
-
-// `SELECT * FROM Employees LEFT JOIN Managers ON Employees.Manager_ID = Managers.Manager_ID 
-
-        (err, res) => {
-            err ? console.error(err) : console.table(res);
-            return init();
+  inquirer.prompt(viewManagerPrompt).then((viewManagerPrompt) => {
+    console.log(viewManagerPrompt.chooseManager);
+    let managerLast = viewManagerPrompt.chooseManager.split(" ");
+    console.log(managerLast);
+    connection.query(
+      `SELECT Manager_ID FROM Managers WHERE First_Name="${managerLast[0]}" AND Last_Name="${managerLast[1]}"`,
+      (err, res) => {
+        if (err) {
+          console.error(err);
         }
-        )
-    })
-
+        console.log(res[0].Manager_ID);
+        finalViewByManager(res[0].Manager_ID);
+      }
+    );
+  });
+};
+const finalViewByManager = (ManID) => {
+  connection.query(
+    `SELECT Employee_ID, First_Name, Last_Name FROM Employees WHERE Manager_ID = ${ManID} `,
+    (err, res) => {
+      console.log(res[0]);
+      if (err) {
+        console.error(err);
+      } else if (res) {
+        console.table(res);
+        return init();
+      }
+    }
+  );
 };
 
 const addRole = () => {
@@ -558,25 +576,84 @@ const selectRemovedDepartment = () => {
 };
 
 const updateEmployeeRole = () => {
-  connection.query(`SELECT First_Name, Last_Name FROM Employees`, 
+  connection.query(
+    `SELECT First_Name, Last_Name FROM Employees`,
     (err, res) => {
       if (err) {
-          console.error(err);
+        console.error(err);
       }
       for (let i = 0; i < res.length; i++) {
         if (existingEmployees.includes(res[i].First_Name && res[i].Last_Name)) {
           continue;
         } else {
           existingEmployees.push(res[i].First_Name + " " + res[i].Last_Name);
-          }
+        }
       }
-      console.log(existingEmployees)
-      updateRole();
-      
-    });
+      updateRoleSelectRole();
+    }
+  );
+};
 
+const updateRoleSelectRole = () => {
+  inquirer.prompt(updateRolePrompt).then((updateRolePromptResponse) => {
+    let chosenEmployee = updateRolePromptResponse.updateRole.split(" ");
+    connection.query(`SELECT Title FROM Roles`, (err, res) => {
+      if (err) {
+        console.error(err);
+      }
+      for (let i = 0; i < res.length; i++) {
+        if (existingRoles.includes(res[i].Title)) {
+          continue;
+        } else {
+          existingRoles.push(res[i].Title);
+        }
+      }
+      obtainID(chosenEmployee);
+    });
+  });
+};
+
+const obtainID = (chosenEmployee) => {
+  connection.query(
+    `SELECT Employee_ID FROM Employees WHERE First_Name = "${chosenEmployee[0]}" AND Last_Name = "${chosenEmployee[1]}"`,
+    (err, res) => {
+      if (err) {
+        console.error(err);
+      }
+      obtainRoleID(res[0].Employee_ID);
+    }
+  )
+};
+
+const obtainRoleID = (Employee_ID) => {
+  inquirer.prompt(chooseNewRole).then((chooseNewRoleResponse) => {
+    connection.query(
+      `SELECT Role_ID FROM Roles WHERE Title = "${chooseNewRoleResponse.chooseNewRole}"`,
+      (err, res) => {
+        if (err) {
+          console.error(err);
+        }
+        updateRoleQuery(Employee_ID, res[0].Role_ID);
+      }
+    )
+  })
 }
 
-const updateRole = () => {
-
-} 
+const updateRoleQuery = (Employee_ID, Role_ID) => {
+  connection.query(
+    `UPDATE Employees SET Role_ID = ${Role_ID} WHERE Employee_ID = ${Employee_ID}`,
+    // [
+    //   {
+    //     Role_ID: chooseNewRole.chooseNewRole,
+    //   },
+    //   {
+    //     Employee_ID: ID,
+    //   },
+    // ],
+    (error) => {
+      if (error) throw err;
+      console.log("Role updated.");
+      return init();
+    }
+  );
+};

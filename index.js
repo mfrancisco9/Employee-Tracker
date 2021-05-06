@@ -50,6 +50,14 @@ const viewManagerPrompt = [
     }
 ]
 
+const updateRolePrompt = [
+  {
+    type: "list",
+    name: "updateRole",
+    message: "Which employee would you like to update the role for?",
+    choices: existingEmployees
+  }];
+
 const addEmployeeNamePrompts = [
   {
     type: "input",
@@ -197,10 +205,10 @@ const switchCases = (responses) => {
       removeDepartment();
       break;
     case `Update an Employee's Role`:
-      console.log(`Update an Employee's Role`);
+      updateEmployeeRole();
       break;
     case `Update an Emplyoee's Manager`:
-      console.log(`Update an Employee's Manager`);
+      updateEmployeeManager();
       break;
     case `Exit`:
       endConnection();
@@ -272,6 +280,7 @@ const viewByManager = () => {
   };
 
 const selectViewByManager = () => {
+  //prompt is returning managers name as well, need to find way to exclude
     inquirer.prompt(viewManagerPrompt).then((viewManagerPrompt) => {
         console.log(viewManagerPrompt.chooseManager);
         let managerLast = viewManagerPrompt.chooseManager.split(' ');
@@ -547,3 +556,27 @@ const selectRemovedDepartment = () => {
     return init();
   });
 };
+
+const updateEmployeeRole = () => {
+  connection.query(`SELECT First_Name, Last_Name FROM Employees`, 
+    (err, res) => {
+      if (err) {
+          console.error(err);
+      }
+      for (let i = 0; i < res.length; i++) {
+        if (existingEmployees.includes(res[i].First_Name && res[i].Last_Name)) {
+          continue;
+        } else {
+          existingEmployees.push(res[i].First_Name + " " + res[i].Last_Name);
+          }
+      }
+      console.log(existingEmployees)
+      updateRole();
+      
+    });
+
+}
+
+const updateRole = () => {
+
+} 
